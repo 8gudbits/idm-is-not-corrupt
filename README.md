@@ -14,7 +14,7 @@ If you have downloaded the **Internet Download Manager** from your favourite web
 
 You have two options depending on how you want to fix the **"IDM is corrupt"** issue:
 
-1. **Download** [idm-inc-for-taskbar.exe]()
+1. **Download** [idm-inc-for-taskbar.exe](https://github.com/8gudbits/idm-is-not-corrupt/raw/main/bin/idm-inc-for-taskbar.exe)
 
 This is the manual trigger version.
 
@@ -23,7 +23,7 @@ This is the manual trigger version.
 
 Perfect if you want quick control without background monitoring.
 
-2. **Download** [idm-inc-watchdog.exe]()
+2. **Download** [idm-inc-watchdog.exe](https://github.com/8gudbits/idm-is-not-corrupt/raw/main/bin/idm-inc-watchdog.exe)
 
 This is the automatic watchdog version.
 
