@@ -9,13 +9,13 @@ Const IDM_PROCESS    = "IDMan.exe"
 Const IDM_ARGS       = "/onboot"
 Const DEFAULT_PATH   = "C:\Program Files (x86)\Internet Download Manager\IDMan.exe"
 Const CONFIG_FILE    = "idman-path.txt"
+Const LOG_FILE       = "idm-inc-watchdog.log"
 Const POLL_INTERVAL  = 3000 ' milliseconds
-Const WINDOW_STATE   = 0 ' Hidden window
+Const WINDOW_STATE   = 0 ' 0 = hidden, 1 = normal, 2 = minimized, 3 = maximized
 
-'───────────────[ Objects ]───────────────
-Dim shell, wmi, fso
+'───────────────[ Initialize Objects ]───────────────
+Dim shell, fso
 Set shell = CreateObject("WScript.Shell")
-Set wmi   = GetObject("winmgmts:")
 Set fso   = CreateObject("Scripting.FileSystemObject")
 
 '───────────────[ Resolve Executable Path ]───────────────
@@ -34,20 +34,43 @@ file.Close
 
 '───────────────[ Monitoring Loop ]───────────────
 Do
-    Dim proc, p
-    Set proc = wmi.ExecQuery("Select * from Win32_Process")
+    Dim tempFile, cmd, line, found
+    tempFile = fso.GetSpecialFolder(2) & "\idmtasklist.csv"
+    cmd = "cmd /c tasklist /FI ""WINDOWTITLE eq " & WINDOW_TITLE & """ /FO CSV > """ & tempFile & """"
+    shell.Run cmd, WINDOW_STATE, True
 
-    For Each p In proc
-        If InStr(1, p.CommandLine, WINDOW_TITLE, vbTextCompare) > 0 Then
-            Dim killCmd, launchCmd
-            killCmd   = "cmd /c taskkill /f /im " & IDM_PROCESS
-            launchCmd = """" & idmanPath & """ " & IDM_ARGS
+    found = False
+    If fso.FileExists(tempFile) Then
+        Dim reader
+        Set reader = fso.OpenTextFile(tempFile, 1)
 
-            shell.Run killCmd, WINDOW_STATE, True
-            shell.Run launchCmd, WINDOW_STATE, False
-            Exit For
-        End If
-    Next
+        Do Until reader.AtEndOfStream
+            line = Trim(reader.ReadLine)
+            If InStr(line, IDM_PROCESS) > 0 Then
+                found = True
+                Exit Do
+            End If
+        Loop
+        reader.Close
+        fso.DeleteFile tempFile
+    End If
+
+    If found Then
+        Dim killCmd, launchCmd
+        killCmd   = "cmd /c taskkill /f /im " & IDM_PROCESS
+        launchCmd = """" & idmanPath & """ " & IDM_ARGS
+
+        shell.Run killCmd, WINDOW_STATE, True
+        shell.Run launchCmd, WINDOW_STATE, False
+
+        '───────────────[ Log Event ]───────────────
+        Dim logPath, logFile, timestamp
+        logPath = fso.GetAbsolutePathName(LOG_FILE)
+        timestamp = Now
+        Set logFile = fso.OpenTextFile(logPath, 8, True)
+        logFile.WriteLine "[" & timestamp & "] Killed IDM is corrupt window."
+        logFile.Close
+    End If
 
     WScript.Sleep POLL_INTERVAL
 Loop
