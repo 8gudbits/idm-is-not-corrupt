@@ -4,9 +4,9 @@ Fix "IDM is corrupt" - **forever**.
 
 ## Overview
 
-If you have downloaded the **Internet Download Manager** from your favourite website, and now you get this annoying popup all the time -
+If you have downloaded the **Internet Download Manager** from "your favourite website", and now you get these annoying pop-ups all the time -
 
-![](/idm-is-corrupt.jpg)
+![](/images/idm-is-corrupt.jpg) ![](/images/idm-has-update.png)
 
 **This is the time to fix it** using **IDM-INC** (`IDM IS NOT CORRUPT`).
 
@@ -14,21 +14,22 @@ If you have downloaded the **Internet Download Manager** from your favourite web
 
 You have two options depending on how you want to fix the **"IDM is corrupt"** issue:
 
-1. **Download** [idm-inc-for-taskbar.exe](https://github.com/8gudbits/idm-is-not-corrupt/raw/main/bin/idm-inc-for-taskbar.exe)
+### 1. **Download** [idm-inc-for-taskbar.exe](https://github.com/8gudbits/idm-is-not-corrupt/raw/main/bin/idm-inc-for-taskbar.exe)
 
 This is the manual trigger version.
 
-- Pin it to your taskbar (make it the first item)
-- When the error popup appears, press `Win + 1`
+- Pin it to your taskbar (make it the first item, like shown in the image)
+  ![](/images/first-item.png)
+- When the error pop-up appears, press `Win + 1`
 
 Perfect if you want quick control without background monitoring.
 
-2. **Download** [idm-inc-watchdog.exe](https://github.com/8gudbits/idm-is-not-corrupt/raw/main/bin/idm-inc-watchdog.exe)
+### 2. **Download** [idm-inc-watchdog.exe](https://github.com/8gudbits/idm-is-not-corrupt/raw/main/bin/idm-inc-watchdog.exe)
 
 This is the automatic watchdog version.
 
 - Press Win + R and type `shell:startup` in the run box
-  ![](/run-box.jpg)
+  ![](/images/run-box.jpg)
 - `Right-click` → `New` → `Shortcut` and point it to `idm-inc-watchdog.exe`
 - It will run silently every time your system starts, watching for the error and fixing it automatically
 

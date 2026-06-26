@@ -4,11 +4,12 @@
 Option Explicit
 
 '───────────────[ Constants ]───────────────
+Const VERSION        = "1.1.0"
 Const IDM_PROCESS    = "IDMan.exe"
-Const IDM_ARGS       = "/onboot"
+Const IDM_ARGS       = "/onboot /s"
 Const DEFAULT_PATH   = "C:\Program Files (x86)\Internet Download Manager\IDMan.exe"
 Const CONFIG_FILE    = "idman-path.txt"
-Const WINDOW_STATE   = 0 ' Hidden window
+Const WINDOW_STATE   = 0 ' 0 = hidden, 1 = normal, 2 = minimized, 3 = maximized
 
 '───────────────[ Objects ]───────────────
 Dim shell, fso

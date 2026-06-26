@@ -4,14 +4,22 @@
 Option Explicit
 
 '───────────────[ Constants ]───────────────
-Const WINDOW_TITLE   = "IDM is corrupt"
+Const VERSION        = "1.1.0"
 Const IDM_PROCESS    = "IDMan.exe"
-Const IDM_ARGS       = "/onboot"
+Const IDM_ARGS       = "/onboot /s"
 Const DEFAULT_PATH   = "C:\Program Files (x86)\Internet Download Manager\IDMan.exe"
 Const CONFIG_FILE    = "idman-path.txt"
 Const LOG_FILE       = "idm-inc-watchdog.log"
 Const POLL_INTERVAL  = 3000 ' milliseconds
 Const WINDOW_STATE   = 0 ' 0 = hidden, 1 = normal, 2 = minimized, 3 = maximized
+
+'───────────────[ Titles to Watch ]───────────────
+Dim Titles
+Titles = Array( _
+    "IDM is corrupt", _
+    "New version of Internet Download Manager is available", _
+    "Internet Download Manager" _
+)
 
 '───────────────[ Initialize Objects ]───────────────
 Dim shell, fso
@@ -34,44 +42,59 @@ file.Close
 
 '───────────────[ Monitoring Loop ]───────────────
 Do
-    Dim tempFile, cmd, line, found
+    Dim matchedTitle, i
+    matchedTitle = ""
+
+    For i = LBound(Titles) To UBound(Titles)
+        If CheckWindow(Titles(i)) Then
+            matchedTitle = Titles(i)
+            Exit For
+        End If
+    Next
+
+    If matchedTitle <> "" Then
+        KillAndRestartIDM matchedTitle
+    End If
+
+    WScript.Sleep POLL_INTERVAL
+Loop
+
+'───────────────[ Functions ]───────────────
+Function CheckWindow(title)
+    Dim tempFile, cmd, line, result
     tempFile = fso.GetSpecialFolder(2) & "\idmtasklist.csv"
-    cmd = "cmd /c tasklist /FI ""WINDOWTITLE eq " & WINDOW_TITLE & """ /FO CSV > """ & tempFile & """"
+    cmd = "cmd /c tasklist /FI ""WINDOWTITLE eq " & title & """ /FO CSV > """ & tempFile & """"
     shell.Run cmd, WINDOW_STATE, True
 
-    found = False
+    result = False
     If fso.FileExists(tempFile) Then
         Dim reader
         Set reader = fso.OpenTextFile(tempFile, 1)
-
         Do Until reader.AtEndOfStream
             line = Trim(reader.ReadLine)
-            If InStr(line, IDM_PROCESS) > 0 Then
-                found = True
+            ' Only count as a match if it's not header or INFO
+            If Len(line) > 0 And InStr(line, "Image Name") = 0 And InStr(line, "INFO:") = 0 Then
+                result = True
                 Exit Do
             End If
         Loop
         reader.Close
         fso.DeleteFile tempFile
     End If
+    CheckWindow = result
+End Function
 
-    If found Then
-        Dim killCmd, launchCmd
-        killCmd   = "cmd /c taskkill /f /im " & IDM_PROCESS
-        launchCmd = """" & idmanPath & """ " & IDM_ARGS
+Sub KillAndRestartIDM(triggerTitle)
+    Dim killCmd, launchCmd, logPath, logFile, timestamp
+    killCmd   = "cmd /c taskkill /f /im " & IDM_PROCESS
+    launchCmd = """" & idmanPath & """ " & IDM_ARGS
+    shell.Run killCmd, WINDOW_STATE, True
+    shell.Run launchCmd, WINDOW_STATE, False
 
-        shell.Run killCmd, WINDOW_STATE, True
-        shell.Run launchCmd, WINDOW_STATE, False
-
-        '───────────────[ Log Event ]───────────────
-        Dim logPath, logFile, timestamp
-        logPath = fso.GetAbsolutePathName(LOG_FILE)
-        timestamp = Now
-        Set logFile = fso.OpenTextFile(logPath, 8, True)
-        logFile.WriteLine "[" & timestamp & "] Killed IDM is corrupt window."
-        logFile.Close
-    End If
-
-    WScript.Sleep POLL_INTERVAL
-Loop
+    logPath = fso.GetAbsolutePathName(LOG_FILE)
+    timestamp = Now
+    Set logFile = fso.OpenTextFile(logPath, 8, True)
+    logFile.WriteLine "[" & timestamp & "] Killed IDM popup window with title: " & triggerTitle
+    logFile.Close
+End Sub
 
