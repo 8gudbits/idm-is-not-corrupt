@@ -6,7 +6,7 @@ Fix "IDM is corrupt" - **forever**.
 
 If you have downloaded the **Internet Download Manager** from "your favourite website", and now you get these annoying pop-ups all the time -
 
-![](/images/idm-is-corrupt.jpg) ![](/images/idm-has-update.png)
+![](/images/idm-is-corrupt.jpg) ![](/images/idm-has-update.png) ![](/images/random-error.png)
 
 **This is the time to fix it** using **IDM-INC** (`IDM IS NOT CORRUPT`).
 
@@ -37,7 +37,7 @@ This is the automatic watchdog version.
 
 ## Custom IDM path (if not installed in default location)
 
-If IDM isn’t installed in the default path (`C:\Program Files (x86)\Internet Download Manager\`):
+If IDM isn't installed in the default path (`C:\Program Files (x86)\Internet Download Manager\`):
 
 - Run any version of the tool once
   A file called **`idman-path.txt`** will be auto-created next to the `.exe`
